@@ -1,9 +1,26 @@
 'use client'
 import { useState } from 'react'
 
+interface Interaction {
+  drug_a: string
+  drug_b: string
+  severity: string
+  what_happens: string
+  what_to_do: string
+  source: string
+  data_source: string
+  disclaimer?: string
+}
+
+interface InteractionResult {
+  drugs: string[]
+  interactions: Interaction[]
+  disclaimer: string
+}
+
 export default function InteractionsPage() {
   const [drugs, setDrugs] = useState(['', ''])
-  const [results, setResults] = useState<any>(null)
+  const [results, setResults] = useState<InteractionResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -14,7 +31,8 @@ export default function InteractionsPage() {
     updated[index] = value
     setDrugs(updated)
   }
-const removeDrug = (index: number) => {
+
+  const removeDrug = (index: number) => {
     if (drugs.length <= 2) return
     setDrugs(drugs.filter((_, i) => i !== index))
   }
@@ -45,7 +63,7 @@ const removeDrug = (index: number) => {
     }
   }
 
-  const severityConfig = {
+  const severityConfig: Record<string, { color: string; badge: string; icon: string }> = {
     major: { color: 'bg-red-100 border-red-300 text-red-800', badge: 'bg-red-500 text-white', icon: '🚨' },
     moderate: { color: 'bg-yellow-100 border-yellow-300 text-yellow-800', badge: 'bg-yellow-500 text-white', icon: '⚠️' },
     minor: { color: 'bg-green-100 border-green-300 text-green-800', badge: 'bg-green-500 text-white', icon: '✅' },
@@ -57,7 +75,6 @@ const removeDrug = (index: number) => {
       <h1 className="text-3xl font-bold text-gray-800 mb-2">Drug Interaction Checker ⚠️</h1>
       <p className="text-gray-500 mb-8">Enter 2 or more medicines to check if they are safe to take together</p>
 
-      {/* Drug Inputs */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
         <p className="text-sm font-semibold text-gray-600 mb-4">Enter Medicine Names:</p>
         <div className="space-y-3 mb-4">
@@ -97,14 +114,12 @@ const removeDrug = (index: number) => {
         </div>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
           {error}
         </div>
       )}
 
-      {/* Loading */}
       {loading && (
         <div className="text-center py-12 text-gray-400">
           <div className="text-4xl mb-3">🔍</div>
@@ -112,7 +127,6 @@ const removeDrug = (index: number) => {
         </div>
       )}
 
-      {/* Results */}
       {results && (
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
@@ -136,7 +150,9 @@ const removeDrug = (index: number) => {
                 {interaction.disclaimer && (
                   <p className="text-xs mt-3 opacity-75">{interaction.disclaimer}</p>
                 )}
-                <p className="text-xs mt-2 opacity-60">Source: {interaction.source} • {interaction.data_source === 'verified_database' ? '✓ Verified Data' : '🤖 AI Estimate'}</p>
+                <p className="text-xs mt-2 opacity-60">
+                  Source: {interaction.source} • {interaction.data_source === 'verified_database' ? '✓ Verified Data' : '🤖 AI Estimate'}
+                </p>
               </div>
             )
           })}
