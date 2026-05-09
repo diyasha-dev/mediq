@@ -9,13 +9,12 @@ export default function InteractionsPage() {
 
   const addDrug = () => setDrugs([...drugs, ''])
 
-  const updateDrug = (index, value) => {
+  const updateDrug = (index: number, value: string) => {
     const updated = [...drugs]
     updated[index] = value
     setDrugs(updated)
   }
-
-  const removeDrug = (index) => {
+const removeDrug = (index: number) => {
     if (drugs.length <= 2) return
     setDrugs(drugs.filter((_, i) => i !== index))
   }

@@ -18,7 +18,7 @@ export default function ReportPage() {
     e.target.value = ''
   }
 
-  const removeFile = (index) => {
+  const removeFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index))
     setError('')
   }
