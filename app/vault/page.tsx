@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react'
 
 export default function VaultPage() {
-  const [medications, setMedications] = useState([])
+  const [medications, setMedications] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ drug_name: '', generic_name: '', dosage: '', frequency: '' })
   const [adding, setAdding] = useState(false)
-  const [warnings, setWarnings] = useState([])
+  const [warnings, setWarnings] = useState<any[]>([])
   const [message, setMessage] = useState('')
   const [notLoggedIn, setNotLoggedIn] = useState(false)
 
@@ -58,7 +58,7 @@ export default function VaultPage() {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Remove this medicine from your vault?')) return
     try {
       const res = await fetch(`/api/vault?id=${id}`, { method: 'DELETE' })

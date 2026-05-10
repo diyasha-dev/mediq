@@ -3,13 +3,13 @@ import { useState } from 'react'
 
 export default function ReportPage() {
   const [text, setText] = useState('')
-  const [selectedFiles, setSelectedFiles] = useState([])
-  const [result, setResult] = useState(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [notLoggedIn, setNotLoggedIn] = useState(false)
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
     setSelectedFiles(prev => [...prev, ...files])
@@ -224,8 +224,8 @@ TSH 6.2 mIU/L`}
             </p>
 
             <div className="space-y-2">
-              {result.all_values.map((val, i) => {
-                const config = statusConfig[val.status]
+              {result.all_values.map((val: any, i: number) => {
+                const config = statusConfig[val.status as keyof typeof statusConfig]
                 return (
                   <div key={i} className={`flex items-center justify-between border rounded-xl px-4 py-3 ${config.color}`}>
                     <div>
@@ -250,7 +250,7 @@ TSH 6.2 mIU/L`}
                   ℹ️ Found but reference range not available:
                 </p>
                 <div className="space-y-2">
-                  {result.unknown_values.map((val, i) => (
+                  {result.unknown_values.map((val: any, i: number) => (
                     <div key={i} className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-3 bg-gray-50">
                       <div>
                         <p className="font-semibold text-sm text-gray-600 capitalize">{val.name}</p>
@@ -281,7 +281,7 @@ TSH 6.2 mIU/L`}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 className="font-bold text-gray-800 mb-3">🏥 Questions to Ask Your Doctor</h2>
               <ul className="space-y-2">
-                {result.doctor_questions.map((q, i) => (
+                {result.doctor_questions.map((q: string, i: number) => (
                   <li key={i} className="flex gap-2 text-sm text-gray-700">
                     <span className="text-blue-500 font-bold">{i + 1}.</span>
                     {q}

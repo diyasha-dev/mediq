@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 export default function SearchPage() {
   const [query, setQuery] = useState('')
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [simplified, setSimplified] = useState(true)
@@ -29,7 +29,7 @@ export default function SearchPage() {
     }
   }
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === 'Enter') handleSearch()
   }
 
@@ -123,7 +123,7 @@ export default function SearchPage() {
   )
 }
 
-function InfoRow({ label, value }) {
+function InfoRow({ label, value }: { label: string, value: string }) {
   return (
     <div className="px-6 py-4">
       <p className="text-sm font-semibold text-gray-500 mb-1">{label}</p>

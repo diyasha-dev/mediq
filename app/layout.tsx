@@ -8,7 +8,7 @@ export const metadata = {
   description: 'Search medicines, check drug interactions, decode blood reports',
 }
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={geist.className}>
