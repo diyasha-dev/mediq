@@ -74,24 +74,26 @@ Base your answer on general medical knowledge. If you are not sure, use severity
               })
             }
           )
+        const geminiData = await geminiRes.json()
+        const rawText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
-          const geminiData = await geminiRes.json()
-          const rawText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+        if (!rawText) throw new Error('Empty Gemini response')
 
-          // Clean and parse JSON from Gemini
-          const cleanText = rawText.replace(/```json|```/g, '').trim()
-          const parsed = JSON.parse(cleanText)
+        // Find JSON object in response even if there is extra text
+        const jsonMatch = rawText.replace(/```json|```/g, '').match(/\{[\s\S]*\}/)
+        if (!jsonMatch) throw new Error('No JSON found in response')
+        const parsed = JSON.parse(jsonMatch[0])
 
-          results.push({
-            drug_a: drugA,
-            drug_b: drugB,
-            severity: parsed.severity,
-            what_happens: parsed.what_happens,
-            what_to_do: parsed.what_to_do,
-            source: 'AI estimate',
-            data_source: 'ai_fallback',
-            disclaimer: '⚠️ This is an AI estimate, not verified medical data. Consult your doctor or pharmacist.'
-          })
+        results.push({
+          drug_a: drugA,
+          drug_b: drugB,
+          severity: parsed.severity,
+          what_happens: parsed.what_happens,
+          what_to_do: parsed.what_to_do,
+          source: 'AI estimate',
+          data_source: 'ai_fallback',
+          disclaimer: '⚠️ This is an AI estimate, not verified medical data. Consult your doctor or pharmacist.'
+        })
         } catch (e) {
           console.log('Gemini fallback failed:', e.message)
           results.push({

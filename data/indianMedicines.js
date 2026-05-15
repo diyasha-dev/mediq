@@ -76,7 +76,18 @@ const indianMedicines = {
   // Cholesterol
   "atorva": "atorvastatin",
   "lipitor": "atorvastatin",
-  "rozavel": "rosuvastatin"
+  "rozavel": "rosuvastatin",
+
+  "saridon": "paracetamol propyphenazone caffeine",
+  "crocin": "acetaminophen",
+  "metacin": "acetaminophen",
+  "zerodol": "aceclofenac",
+  "voveran": "diclofenac",
+  "volini": "diclofenac",
+  "ultracet": "tramadol acetaminophen",
+  "corex": "codeine",
+  "benadryl cough": "diphenhydramine",
+  "phensedyl": "codeine"
 }
 
 export default indianMedicines
