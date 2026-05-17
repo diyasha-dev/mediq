@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -16,18 +17,32 @@ export default function AuthPage() {
   const [success, setSuccess] = useState("");
   const [forgotMode, setForgotMode] = useState(false);
 
-  const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
-  const isSignUp = mode === "signup";
+const router = useRouter();
+const supabase = createSupabaseBrowserClient();
+const isSignUp = mode === "signup";
+
+// Get redirect URL from query params
+// const searchParams = new URLSearchParams(
+//   typeof window !== 'undefined' ? window.location.search : ''
+// )
+// const redirectTo = searchParams.get('redirect') || '/vault'
+const [redirectTo, setRedirectTo] = useState('/vault')
+
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search)
+  const redirect = params.get('redirect')
+  if (redirect) setRedirectTo(redirect)
+}, [])
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
+  const supabase = createSupabaseBrowserClient()
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+    },
+  })
+ }
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +122,7 @@ export default function AuthPage() {
           setError(error.message);
         }
       } else {
-        router.push("/vault");
+          router.push(redirectTo);
       }
     }
 
