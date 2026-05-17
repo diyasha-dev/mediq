@@ -106,7 +106,7 @@ export default function SearchPage() {
           onSearch={handleSearch}
           loading={loading}
         />
-        <FilterChips active={activeFilters} onToggle={handleToggle} />
+        
       </div>
 
       {error && (
@@ -145,7 +145,10 @@ export default function SearchPage() {
         ) : null}
       </div>
 
-      <MedicalDisclaimer />
+      <div className="mt-10">
+        <MedicalDisclaimer variant="prominent" />
+      </div>
+     
     </div>
   )
 }

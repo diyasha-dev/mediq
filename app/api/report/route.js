@@ -158,55 +158,78 @@ function flagValues(parsedResults) {
 }
 
 async function extractTextFromImageWithGemini(base64Image, mimeType) {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 20000)
+  // Try with gemini-2.5-flash first, fallback to gemini-2.0-flash
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash']
+  
+  for (const model of models) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 25000)
 
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                inline_data: {
-                  mime_type: mimeType,
-                  data: base64Image
-                }
-              },
-              {
-                text: `This is a medical blood test report image. Extract ONLY the test names and their numeric result values. Ignore hospital name, patient name, instruments, dates, addresses, and reference ranges.
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          signal: controller.signal,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64Image
+                  }
+                },
+                {
+                  text: `Look at this medical lab report image carefully.
 
-Return ONLY in this exact format, one test per line, nothing else:
+Extract ONLY the test names and their numeric result values.
+Ignore: hospital name, patient name, doctor name, dates, addresses, instruments, barcodes, logos, reference ranges, units.
+
+Return ONLY in this exact simple format, one test per line:
 TestName VALUE
 
-Examples:
+Examples of correct output:
 Hemoglobin 13.5
 TSH 0.17
 FT4 2.68
 Glucose 95
-WBC 7.2`
-              }
-            ]
-          }]
-        })
-      }
-    )
+WBC 9.2
+Platelets 185
 
-    clearTimeout(timeoutId)
-    const data = await response.json()
-    console.log('Gemini Vision status:', response.status)
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    console.log('Gemini Vision extracted:', text)
-    return text
-  } catch (e) {
-    clearTimeout(timeoutId)
-    console.log('Gemini Vision failed:', e.message)
-    throw e
+Do not include units. Do not include reference ranges. Just test name and number, one per line.`
+                }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 500
+            }
+          })
+        }
+      )
+
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        console.log(`${model} returned ${response.status}, trying next...`)
+        continue
+      }
+
+      const data = await response.json()
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+      console.log(`${model} extracted:`, text)
+      
+      if (text.trim().length > 0) return text
+      
+    } catch (e) {
+      clearTimeout(timeoutId)
+      console.log(`${model} failed:`, e.message, 'trying next...')
+    }
   }
+
+  throw new Error('All models failed to extract text from image')
 }
 
 export async function POST(request) {
@@ -243,11 +266,21 @@ export async function POST(request) {
       return Response.json({
         error: 'For PDF files, please open the PDF, select all text (Ctrl+A), copy and paste it in the text box below.'
       }, { status: 400 })
-    } else if (mimeType.startsWith('image/')) {
+   
+      } else if (mimeType.startsWith('image/')) {
       console.log('Sending image to Gemini Vision...')
-      extractedText = await extractTextFromImageWithGemini(base64, mimeType)
-      console.log('Gemini extracted:', extractedText)
-    } else {
+      try {
+        extractedText = await extractTextFromImageWithGemini(base64, mimeType)
+        console.log('Gemini extracted:', extractedText)
+      } catch (e) {
+        console.log('Image extraction failed:', e.message)
+        return Response.json({
+          error: 'Could not read the report image. Please try: (1) Better lighting, (2) Clearer photo, (3) Copy-paste the text instead.',
+        }, { status: 400 })
+      }
+    }
+
+      else {
       return Response.json({ error: 'Please upload an image file (JPG, PNG)' }, { status: 400 })
     }
   }

@@ -17,10 +17,10 @@ export default function HeroSection() {
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
         {/* Left — Copy */}
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-muted rounded-full text-xs font-semibold text-teal mb-6">
+          {/* <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-muted rounded-full text-xs font-semibold text-teal mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-teal" />
             Free to use · No account required to search
-          </div>
+          </div> */}
 
           <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-heading text-charcoal leading-[1.08] mb-5 tracking-tight">
             Know your{" "}
