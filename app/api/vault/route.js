@@ -18,6 +18,37 @@ async function getSupabaseWithAuth() {
     }
   )
 }
+export async function PATCH(request) {
+  const supabase = await getSupabaseWithAuth()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return Response.json({ error: 'Not logged in' }, { status: 401 })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+  const body = await request.json()
+
+  const updateData = {}
+  if (body.reminder_time !== undefined) updateData.reminder_time = body.reminder_time
+  if (body.dosage !== undefined) updateData.dosage = body.dosage
+  if (body.frequency !== undefined) updateData.frequency = body.frequency
+  if (body.drug_name !== undefined) updateData.drug_name = body.drug_name
+  if (body.generic_name !== undefined) updateData.generic_name = body.generic_name
+
+  const { error } = await supabase
+    .from('user_medications')
+    .update(updateData)
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 })
+  }
+
+  return Response.json({ message: 'Updated successfully' })
+}
 
 export async function GET() {
   const supabase = await getSupabaseWithAuth()
