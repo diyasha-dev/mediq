@@ -158,12 +158,11 @@ function flagValues(parsedResults) {
 }
 
 async function extractTextFromImageWithGemini(base64Image, mimeType) {
-  // Try with gemini-2.5-flash first, fallback to gemini-2.0-flash
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash']
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']
   
   for (const model of models) {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 25000)
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
 
     try {
       const response = await fetch(
@@ -190,15 +189,13 @@ Ignore: hospital name, patient name, doctor name, dates, addresses, instruments,
 Return ONLY in this exact simple format, one test per line:
 TestName VALUE
 
-Examples of correct output:
+Examples:
 Hemoglobin 13.5
 TSH 0.17
-FT4 2.68
 Glucose 95
 WBC 9.2
-Platelets 185
 
-Do not include units. Do not include reference ranges. Just test name and number, one per line.`
+Do not include units. Do not include reference ranges. Just test name and number.`
                 }
               ]
             }],
@@ -211,7 +208,12 @@ Do not include units. Do not include reference ranges. Just test name and number
       )
 
       clearTimeout(timeoutId)
-      
+
+      if (response.status === 429) {
+        console.log(`${model} rate limited, trying next model...`)
+        continue
+      }
+
       if (!response.ok) {
         console.log(`${model} returned ${response.status}, trying next...`)
         continue
@@ -220,16 +222,16 @@ Do not include units. Do not include reference ranges. Just test name and number
       const data = await response.json()
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
       console.log(`${model} extracted:`, text)
-      
+
       if (text.trim().length > 0) return text
-      
+
     } catch (e) {
       clearTimeout(timeoutId)
-      console.log(`${model} failed:`, e.message, 'trying next...')
+      console.log(`${model} failed:`, e.message)
     }
   }
 
-  throw new Error('All models failed to extract text from image')
+  throw new Error('rate_limited')
 }
 
 export async function POST(request) {
@@ -272,12 +274,18 @@ export async function POST(request) {
       try {
         extractedText = await extractTextFromImageWithGemini(base64, mimeType)
         console.log('Gemini extracted:', extractedText)
-      } catch (e) {
-        console.log('Image extraction failed:', e.message)
-        return Response.json({
-          error: 'Could not read the report image. Please try: (1) Better lighting, (2) Clearer photo, (3) Copy-paste the text instead.',
-        }, { status: 400 })
-      }
+    } catch (e) {
+  console.log('Image extraction failed:', e.message)
+  if (e.message === 'rate_limited') {
+    return Response.json({
+      error: 'Unable to read image right now. Please try again in a moment or paste the report text below.',
+      rate_limited: true
+    }, { status: 429 })
+  }
+  return Response.json({
+    error: 'Text extraction failed. For best results, copy and paste the report text in the box below.',
+  }, { status: 400 })
+}
     }
 
       else {

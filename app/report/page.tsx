@@ -114,12 +114,20 @@ export default function ReportPage() {
         text={text}
         setText={setText}
       />
-
       {error && (
-        <div className="bg-severity-major-bg border border-severity-major-border text-severity-major px-4 py-3 rounded-xl mb-6 text-sm">
-          {error}
-        </div>
-      )}
+  <div className={`px-4 py-3 rounded-xl mb-6 text-sm border ${
+    error.includes('rate limit') || error.includes('busy')
+      ? 'bg-severity-moderate-bg border-severity-moderate-border text-severity-moderate'
+      : 'bg-severity-major-bg border-severity-major-border text-severity-major'
+  }`}>
+    {error}
+    {(error.includes('rate limit') || error.includes('busy')) && (
+      <p className="mt-2 text-xs opacity-80">
+        💡 Tip: PDF text extraction always works instantly — no rate limits!
+      </p>
+    )}
+  </div>
+)}
 
       <div className="flex items-center justify-between mb-8">
         <p className="text-xs text-muted">
