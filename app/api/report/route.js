@@ -181,27 +181,21 @@ async function extractTextFromImageWithGemini(base64Image, mimeType) {
                   }
                 },
                 {
-                  text: `Look at this medical lab report image carefully.
+                  text: `Extract all test results from this medical lab report.
+                      Format: one test per line as "TestName NUMBER"
+                      Example: Hemoglobin 12.5
 
-Extract ONLY the test names and their numeric result values.
-Ignore: hospital name, patient name, doctor name, dates, addresses, instruments, barcodes, logos, reference ranges, units.
-
-Return ONLY in this exact simple format, one test per line:
-TestName VALUE
-
-Examples:
-Hemoglobin 13.5
-TSH 0.17
-Glucose 95
-WBC 9.2
-
-Do not include units. Do not include reference ranges. Just test name and number.`
+                      Rules:
+                      - Only test name + numeric value
+                      - No units, no ranges, no extra text
+                      - Include ALL tests visible in report
+                      - Convert large numbers: 9000 cumm WBC = WBC 9.0, 150000 platelets = Platelets 150`
                 }
               ]
             }],
             generationConfig: {
               temperature: 0.1,
-              maxOutputTokens: 500
+              maxOutputTokens: 1024
             }
           })
         }
