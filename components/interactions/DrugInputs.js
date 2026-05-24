@@ -1,23 +1,22 @@
-"use client";
+'use client'
+import Autocomplete from '@/components/search/Autocomplete'
 
 export default function DrugInputs({ drugs, setDrugs, onCheck, loading }) {
   const addDrug = () => {
-    if (drugs.length < 5) setDrugs([...drugs, ""]);
-  };
+    if (drugs.length < 5) setDrugs([...drugs, ""])
+  }
 
   const updateDrug = (index, value) => {
-    const updated = [...drugs];
-    updated[index] = value;
-    setDrugs(updated);
-  };
+    const updated = [...drugs]
+    updated[index] = value
+    setDrugs(updated)
+  }
 
   const removeDrug = (index) => {
-    if (drugs.length > 2) setDrugs(drugs.filter((_, i) => i !== index));
-  };
+    if (drugs.length > 2) setDrugs(drugs.filter((_, i) => i !== index))
+  }
 
-  const clearAll = () => {
-    setDrugs(["", ""]);
-  };
+  const clearAll = () => setDrugs(["", ""])
 
   const placeholders = [
     "e.g. Dolo 650, Paracetamol",
@@ -25,7 +24,7 @@ export default function DrugInputs({ drugs, setDrugs, onCheck, loading }) {
     "e.g. Pantoprazole, Pan 40",
     "e.g. Calpol, Ibuprofen",
     "e.g. Metformin, Glycomet",
-  ];
+  ]
 
   return (
     <div>
@@ -35,34 +34,18 @@ export default function DrugInputs({ drugs, setDrugs, onCheck, loading }) {
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center">
               <span className="text-sm font-bold text-teal">{i + 1}</span>
             </div>
-            {/* <input
+            <Autocomplete
               value={drug}
-              onChange={(e) => updateDrug(i, e.target.value)}
+              onChange={(val) => updateDrug(i, val)}
+              onSelect={(val) => updateDrug(i, val)}
+              autoSearch={false}
               placeholder={placeholders[i] || `Drug ${i + 1} name…`}
-              className="flex-1 px-4 py-3 text-sm bg-stone-50 border border-ash rounded-xl text-charcoal placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-            /> */}
-
-              <input
-              value={drug}
-              onChange={(e) => updateDrug(i, e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') onCheck()
-              }}
-              placeholder={placeholders[i] || `Drug ${i + 1} name…`}
-              className="flex-1 px-4 py-3 text-sm bg-stone-50 border border-ash rounded-xl text-charcoal placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+              className="w-full px-4 py-3 text-sm bg-stone-50 border border-ash rounded-xl text-charcoal placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
             />
-          {/* <button
-            onClick={onCheck}
-            disabled={loading || drugs.filter((d) => d.trim()).length < 2}
-            title="Check drug interactions (or press Enter)"
-            className="px-6 py-3 text-sm font-semibold text-white bg-teal rounded-xl hover:bg-teal-hover active:bg-teal-active transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          ></button> */}
-
             {drugs.length > 2 && (
               <button
                 onClick={() => removeDrug(i)}
                 className="p-2 text-muted hover:text-severity-major hover:bg-severity-major-bg rounded-lg transition-colors"
-                aria-label="Remove drug"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -95,19 +78,15 @@ export default function DrugInputs({ drugs, setDrugs, onCheck, loading }) {
         </div>
         <button
           onClick={onCheck}
-          disabled={loading || drugs.filter((d) => d.trim()).length < 2}
+          disabled={loading || drugs.filter(d => d.trim()).length < 2}
+          title="Check drug interactions (or press Enter)"
           className="px-6 py-3 text-sm font-semibold text-white bg-teal rounded-xl hover:bg-teal-hover active:bg-teal-active transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {loading ? (
-            <>
-              <span className="spinner" />
-              Checking…
-            </>
-          ) : (
-            "Check Interactions"
-          )}
+            <><span className="spinner" />Checking…</>
+          ) : "Check Interactions"}
         </button>
       </div>
     </div>
-  );
+  )
 }

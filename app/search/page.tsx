@@ -61,34 +61,32 @@ export default function SearchPage() {
     );
   };
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!query.trim()) {
-      setResults([]);
-      setHasSearched(false);
-      return;
+  const handleSearch = async (e?: React.FormEvent, directValue?: string) => {
+  e?.preventDefault()
+  const searchQuery = directValue || query
+  if (!searchQuery.trim()) return
+
+  if (directValue) onChange(directValue)
+
+  setLoading(true)
+  setResults([])
+  setHasSearched(true)
+  setError("")
+
+  try {
+    const res = await fetch(`/api/search?drug=${encodeURIComponent(searchQuery)}`)
+    const data = await res.json()
+    if (data.error) {
+      setError(data.error)
+    } else {
+      setResults([transformApiToDrugCard(data.data)])
     }
-
-    setLoading(true);
-    setResults([]);
-    setHasSearched(true);
-    setError("");
-
-    try {
-      const res = await fetch(`/api/search?drug=${encodeURIComponent(query)}`)
-      const data = await res.json()
-
-      if (data.error) {
-        setError(data.error)
-      } else {
-        setResults([transformApiToDrugCard(data.data)])
-      }
-    } catch (e) {
-      setError("Something went wrong. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+  } catch (e) {
+    setError("Something went wrong. Please try again.")
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
