@@ -66,7 +66,7 @@ export default function SearchPage() {
   const searchQuery = directValue || query
   if (!searchQuery.trim()) return
 
-  if (directValue) onChange(directValue)
+  if (directValue) setQuery(directValue)
 
   setLoading(true)
   setResults([])
