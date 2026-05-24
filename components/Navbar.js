@@ -143,16 +143,18 @@ export default function Navbar() {
     >
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-teal flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2v12M2 8h12" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
+       
+        {/* Logo */}
+        
+        <Link href="/" className="flex items-center shrink-1 -ml-4">
+          <div className="w-13 h-13 flex items-center justify-center">
+            <img src="/logo.png" alt="MedIQ Logo" className="w-full h-full object-contain" />
           </div>
-          <span className="text-xl font-heading text-charcoal tracking-tight">
+          <span className="text-3xl font-heading text-charcoal tracking-tight -ml-2">
             Med<span className="text-teal">IQ</span>
           </span>
         </Link>
+
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-1">
