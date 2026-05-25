@@ -13,34 +13,8 @@ const links = [
   { href: "/vault", label: "Vault" },
 ];
 
-function UserButton() {
-
-
-  const [user, setUser] = useState(null)
+function UserButton({ user, handleSignOut, pathname }: { user: any, handleSignOut: () => void, pathname: string }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const router = useRouter()
-  const pathname = usePathname()  // ← add this
-
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient()
-
-    // Check session immediately
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-    })
-
-    // Listen for changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const handleSignOut = async () => {
-    const supabase = createSupabaseBrowserClient()
-    await supabase.auth.signOut()
-  }
 
   if (user) {
     const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
@@ -124,6 +98,24 @@ export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleSignOut = async () => {
+    const supabase = createSupabaseBrowserClient()
+    await supabase.auth.signOut()
+    setMobileOpen(false)
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -176,7 +168,7 @@ export default function Navbar() {
 
         {/* UserButton + Mobile Toggle */}
         <div className="flex items-center gap-3">
-          <UserButton />
+          <UserButton user={user} handleSignOut={handleSignOut} pathname={pathname} />
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden p-2 text-slate hover:text-charcoal rounded-lg hover:bg-stone-100 transition-colors"
@@ -212,12 +204,32 @@ export default function Navbar() {
                 </Link>
               );
             })}
-            <Link
-              href={`/auth?redirect=${pathname}`}
-              className="mt-2 text-center px-4 py-2.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-hover transition-colors"
-            >
-              Sign In
-            </Link>
+            {user ? (
+              <div className="mt-2 pt-2 border-t border-ash">
+                <div className="px-4 py-2 mb-1">
+                  <p className="text-sm font-semibold text-charcoal truncate">
+                    {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className="text-xs text-muted truncate">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold text-severity-major hover:bg-severity-major-bg rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href={`/auth?redirect=${pathname}`}
+                className="mt-2 text-center px-4 py-2.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-hover transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
