@@ -161,3 +161,29 @@ button:focus-visible {
 
 /* Hide Next.js dev indicator */
 nextjs-portal { display: none !important; }
+
+/* ─── Print Styles ──────────────────────────────────────────────── */
+@media print {
+  /* Hide everything marked as print:hidden */
+  .print\:hidden { display: none !important; }
+
+  /* Hide navbar and footer */
+  nav, footer, [data-print-hide] { display: none !important; }
+
+  /* Clean white background, black text */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  /* Remove shadows and rounded corners from cards */
+  .shadow, [class*="shadow"] { box-shadow: none !important; }
+  [class*="rounded"] { border-radius: 4px !important; }
+
+  /* Ensure full width */
+  .max-w-3xl, .max-w-4xl { max-width: 100% !important; }
+
+  /* Page breaks */
+  @page { margin: 1.5cm; }
+}

@@ -164,7 +164,7 @@ function TestRow({ row, defaultExpanded }) {
               Your <strong>{row.name}</strong> is {row.status.toLowerCase()} at{' '}
               <strong>{row.value} {row.unit}</strong> (normal is {row.normal_range} {row.unit}).
               {row.condition ? ` This may suggest ${row.condition.toLowerCase()}.` : ''}
-              {' '}Don't worry — many people have this and it is treatable with the right care.
+              {' '}Don&apos;t worry — many people have this and it is treatable with the right care.
             </p>
           </div>
 
@@ -357,8 +357,9 @@ export default function ReportResults({ result }) {
         </div>
       )}
 
-      {/* Copy button */}
-      <div className="flex justify-end">
+      {/* Action Buttons — Copy, Print, Share */}
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Copy */}
         <button
           onClick={handleCopy}
           className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate bg-white border border-ash rounded-xl hover:bg-stone-50 transition-all"
@@ -368,6 +369,45 @@ export default function ReportResults({ result }) {
           ) : (
             <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copy Summary</>
           )}
+        </button>
+
+        {/* Print */}
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate bg-white border border-ash rounded-xl hover:border-teal hover:text-teal transition-all"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
+          </svg>
+          Print Report
+        </button>
+
+        {/* Share */}
+        <button
+          onClick={async () => {
+            const flagged = rows.filter(r => r.status !== 'NORMAL')
+            const lines = [
+              'MediQ — Blood Report Summary',
+              '',
+              result.explanation || '',
+              '',
+              'Parameters:',
+              ...flagged.map(r => `  • ${r.name}: ${r.value} ${r.unit} [${r.status}]${r.condition ? ' — ' + r.condition : ''}`),
+            ]
+            const shareText = lines.join('\n')
+            if (navigator.share) {
+              try { await navigator.share({ title: 'MediQ Blood Report', text: shareText }) } catch {}
+            } else {
+              await navigator.clipboard.writeText(shareText)
+              alert('Report summary copied to clipboard!')
+            }
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-teal text-white rounded-xl hover:bg-teal-hover active:bg-teal-active transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          Share Report
         </button>
       </div>
     </div>

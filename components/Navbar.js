@@ -22,24 +22,24 @@ function UserButton() {
   const pathname = usePathname()  // ← add this
 
   useEffect(() => {
-  const supabase = createSupabaseBrowserClient()
+    const supabase = createSupabaseBrowserClient()
 
-  // Check session immediately
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    setUser(session?.user ?? null)
-  })
+    // Check session immediately
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
 
-  // Listen for changes
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-    setUser(session?.user ?? null)
-  })
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
 
-  return () => subscription.unsubscribe()
-  }, []) 
-  
+    return () => subscription.unsubscribe()
+  }, [])
+
   const handleSignOut = async () => {
-  const supabase = createSupabaseBrowserClient()
-  await supabase.auth.signOut()
+    const supabase = createSupabaseBrowserClient()
+    await supabase.auth.signOut()
   }
 
   if (user) {
@@ -111,13 +111,13 @@ function UserButton() {
 
   // Not logged in — show Sign In button
   return (
-  <Link
-    href={`/auth?redirect=${pathname}`}
-    className="hidden md:inline-flex items-center px-4 py-1.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-hover transition-colors"
-  >
-    Sign In
-  </Link>
-)
+    <Link
+      href={`/auth?redirect=${pathname}`}
+      className="hidden md:inline-flex items-center px-4 py-1.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-hover transition-colors"
+    >
+      Sign In
+    </Link>
+  )
 }
 
 export default function Navbar() {
@@ -137,16 +137,15 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-all duration-300 ${
-        scrolled ? "glass-nav-scrolled" : "glass-nav"
-      }`}
+      className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "glass-nav-scrolled" : "glass-nav"
+        }`}
     >
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-       
+
         {/* Logo */}
-        
-        <Link href="/" className="flex items-center shrink-1 -ml-4">
+
+        <Link href="/" className="flex items-center shrink-1 -ml-6">
           <div className="w-13 h-13 flex items-center justify-center">
             <img src="/logo.png" alt="MedIQ Logo" className="w-full h-full object-contain" />
           </div>
@@ -164,11 +163,10 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                  active
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${active
                     ? "text-teal bg-teal-50"
                     : "text-slate hover:text-charcoal hover:bg-stone-100"
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -205,11 +203,10 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                    active
+                  className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${active
                       ? "text-teal bg-teal-50"
                       : "text-slate hover:text-charcoal hover:bg-stone-100"
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>

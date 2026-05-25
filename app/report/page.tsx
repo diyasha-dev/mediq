@@ -101,67 +101,69 @@ export default function ReportPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-      <h1 className="text-3xl md:text-4xl font-heading text-charcoal mb-2 tracking-tight">
-        Blood Report Explainer
-      </h1>
-      <p className="text-slate mb-8">
-        Upload your report image or paste text. We'll flag HIGH/LOW values and explain in plain English.
-      </p>
-
-      <UploadZone
-        selectedFiles={selectedFiles}
-        setSelectedFiles={setSelectedFiles}
-        text={text}
-        setText={setText}
-      />
-      {error && (
-  <div className={`px-4 py-3 rounded-xl mb-6 text-sm border ${
-    error.includes('rate limit') || error.includes('busy')
-      ? 'bg-severity-moderate-bg border-severity-moderate-border text-severity-moderate'
-      : 'bg-severity-major-bg border-severity-major-border text-severity-major'
-  }`}>
-    {error}
-    {(error.includes('rate limit') || error.includes('busy')) && (
-      <p className="mt-2 text-xs opacity-80">
-        💡 Tip: PDF text extraction always works instantly — no rate limits!
-      </p>
-    )}
-  </div>
-)}
-
-      <div className="flex items-center justify-between mb-8">
-        <p className="text-xs text-muted">
-          {selectedFiles.length > 0
-            ? "✅ File ready — click Analyze"
-            : "💡 Tip: Copy text from a PDF and paste above"}
+      <div className="print:hidden">
+        <h1 className="text-3xl md:text-4xl font-heading text-charcoal mb-2 tracking-tight">
+          Blood Report Explainer
+        </h1>
+        <p className="text-slate mb-8">
+          Upload your report image or paste text. We'll flag HIGH/LOW values and explain in plain English.
         </p>
-        <button
-          onClick={handleAnalyze}
-          disabled={!canAnalyze}
-          className={`px-6 py-3 text-sm font-semibold text-white rounded-xl transition-colors flex items-center gap-2 ${
-            canAnalyze
-              ? "bg-teal hover:bg-teal-hover active:bg-teal-active"
-              : "bg-stone-300 cursor-not-allowed"
-          }`}
-        >
-          {loading ? (
-            <><span className="spinner" />Analyzing…</>
-          ) : (
-            "Analyze Report"
-          )}
-        </button>
-      </div>
 
-      {loading && (
-        <div className="text-center py-12 text-muted">
-          <div className="text-4xl mb-3">🔬</div>
-          <p>{selectedFiles.length > 0 ? "Reading your report..." : "Analyzing values..."}</p>
+        <UploadZone
+          selectedFiles={selectedFiles}
+          setSelectedFiles={setSelectedFiles}
+          text={text}
+          setText={setText}
+        />
+        {error && (
+          <div className={`px-4 py-3 rounded-xl mb-6 text-sm border ${
+            error.includes('rate limit') || error.includes('busy')
+              ? 'bg-severity-moderate-bg border-severity-moderate-border text-severity-moderate'
+              : 'bg-severity-major-bg border-severity-major-border text-severity-major'
+          }`}>
+            {error}
+            {(error.includes('rate limit') || error.includes('busy')) && (
+              <p className="mt-2 text-xs opacity-80">
+                💡 Tip: PDF text extraction always works instantly — no rate limits!
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mb-8">
+          <p className="text-xs text-muted">
+            {selectedFiles.length > 0
+              ? "✅ File ready — click Analyze"
+              : "💡 Tip: Copy text from a PDF and paste above"}
+          </p>
+          <button
+            onClick={handleAnalyze}
+            disabled={!canAnalyze}
+            className={`px-6 py-3 text-sm font-semibold text-white rounded-xl transition-colors flex items-center gap-2 ${
+              canAnalyze
+                ? "bg-teal hover:bg-teal-hover active:bg-teal-active"
+                : "bg-stone-300 cursor-not-allowed"
+            }`}
+          >
+            {loading ? (
+              <><span className="spinner" />Analyzing…</>
+            ) : (
+              "Analyze Report"
+            )}
+          </button>
         </div>
-      )}
+
+        {loading && (
+          <div className="text-center py-12 text-muted">
+            <div className="text-4xl mb-3">🔬</div>
+            <p>{selectedFiles.length > 0 ? "Reading your report..." : "Analyzing values..."}</p>
+          </div>
+        )}
+      </div>
 
       {result && <ReportResults result={result} />}
 
-      <div className="mt-10">
+      <div className="mt-10 print:hidden">
         <MedicalDisclaimer variant="prominent" />
       </div>
     </div>
