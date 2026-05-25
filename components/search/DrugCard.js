@@ -96,12 +96,12 @@ export default function DrugCard({ drug, activeFilters }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-ash">
+      <div className="flex overflow-x-auto border-b border-ash hide-scrollbar">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+            className={`whitespace-nowrap px-4 sm:px-6 py-3 text-sm font-semibold transition-colors ${
               activeTab === tab.key
                 ? "text-teal border-b-2 border-teal bg-teal-50/50"
                 : "text-muted hover:text-charcoal hover:bg-stone-50"
@@ -141,9 +141,9 @@ export default function DrugCard({ drug, activeFilters }) {
               <>
                 <div className="divide-y divide-ash rounded-xl border border-ash overflow-hidden">
                   {drug.dosage.standard.map((item) => (
-                    <div key={item.label} className="flex items-start gap-4 px-4 py-3 bg-white">
-                      <span className="text-sm font-semibold text-muted w-32 flex-shrink-0 pt-0.5">{item.label}</span>
-                      <span className="text-sm text-charcoal font-mono">{item.value}</span>
+                    <div key={item.label} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 px-4 py-3 bg-white">
+                      <span className="text-sm font-semibold text-muted sm:w-32 flex-shrink-0 pt-0.5">{item.label}</span>
+                      <span className="text-sm text-charcoal font-mono break-words">{item.value}</span>
                     </div>
                   ))}
                 </div>

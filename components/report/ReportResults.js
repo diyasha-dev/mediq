@@ -123,35 +123,53 @@ function TestRow({ row, defaultExpanded }) {
   return (
     <div className="border-b border-ash last:border-b-0">
       <div
-        className={`px-5 py-4 flex items-center gap-4 ${isAbnormal ? 'cursor-pointer hover:bg-stone-50' : ''} transition-colors`}
+        className={`px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 ${isAbnormal ? 'cursor-pointer hover:bg-stone-50' : ''} transition-colors`}
         onClick={() => isAbnormal && setExpanded(!expanded)}
       >
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-charcoal">{row.name}</p>
-          {row.condition && (
-            <p className="text-xs text-muted mt-0.5">{row.condition}</p>
-          )}
+        <div className="w-full min-w-0">
+          <div className="flex items-start justify-between">
+            <div className="pr-3">
+              <p className="text-sm font-semibold text-charcoal">{row.name}</p>
+              {row.condition && (
+                <p className="text-xs text-muted mt-0.5">{row.condition}</p>
+              )}
+            </div>
+            {/* Mobile Badge and Arrow */}
+            <div className="flex items-center gap-2 sm:hidden shrink-0 mt-0.5">
+              <StatusBadge status={row.status} />
+              {isAbnormal && (
+                <svg
+                  className={`w-4 h-4 text-muted shrink-0 transition-transform duration-150 ${expanded ? 'rotate-180' : ''}`}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <p className={`text-sm font-bold font-mono tabular-nums ${valueColor}`}>
-            {row.value} <span className="text-xs font-normal text-muted">{row.unit}</span>
-          </p>
-          <p className="text-xs text-muted font-mono">Ref: {row.normal_range}</p>
-        </div>
+        <div className="w-full sm:w-auto flex items-center sm:justify-end justify-between sm:gap-4 mt-1 sm:mt-0">
+          <div className="text-left sm:text-right shrink-0">
+            <p className={`text-sm font-bold font-mono tabular-nums ${valueColor}`}>
+              {row.value} <span className="text-xs font-normal text-muted">{row.unit}</span>
+            </p>
+            <p className="text-xs text-muted font-mono mt-0.5">Ref: {row.normal_range}</p>
+          </div>
 
-        <div className="shrink-0">
-          <StatusBadge status={row.status} />
+          {/* Desktop Badge and Arrow */}
+          <div className="hidden sm:flex items-center gap-3 shrink-0">
+            <StatusBadge status={row.status} />
+            {isAbnormal && (
+              <svg
+                className={`w-4 h-4 text-muted shrink-0 transition-transform duration-150 ${expanded ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            )}
+          </div>
         </div>
-
-        {isAbnormal && (
-          <svg
-            className={`w-4 h-4 text-muted shrink-0 transition-transform duration-150 ${expanded ? 'rotate-180' : ''}`}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        )}
       </div>
 
       {expanded && isAbnormal && (
@@ -244,18 +262,18 @@ export default function ReportResults({ result }) {
       {/* Summary Cards */}
       <div className="bg-white border border-ash rounded-2xl p-6">
         <h2 className="text-lg font-bold text-charcoal mb-4">📊 Report Summary</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-severity-major-bg rounded-xl">
-            <p className="text-2xl font-bold text-severity-major">{criticalRows.length}</p>
-            <p className="text-xs text-severity-major font-medium mt-0.5">Critical</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="text-center p-3 sm:p-4 bg-severity-major-bg rounded-xl">
+            <p className="text-2xl sm:text-3xl font-bold text-severity-major">{criticalRows.length}</p>
+            <p className="text-xs sm:text-sm text-severity-major font-medium mt-0.5">Critical</p>
           </div>
-          <div className="text-center p-3 bg-severity-moderate-bg rounded-xl">
-            <p className="text-2xl font-bold text-severity-moderate">{abnormalRows.length}</p>
-            <p className="text-xs text-severity-moderate font-medium mt-0.5">Abnormal</p>
+          <div className="text-center p-3 sm:p-4 bg-severity-moderate-bg rounded-xl">
+            <p className="text-2xl sm:text-3xl font-bold text-severity-moderate">{abnormalRows.length}</p>
+            <p className="text-xs sm:text-sm text-severity-moderate font-medium mt-0.5">Abnormal</p>
           </div>
-          <div className="text-center p-3 bg-status-normal-bg rounded-xl">
-            <p className="text-2xl font-bold text-status-normal">{normalRows.length}</p>
-            <p className="text-xs text-status-normal font-medium mt-0.5">Normal</p>
+          <div className="text-center p-3 sm:p-4 bg-status-normal-bg rounded-xl">
+            <p className="text-2xl sm:text-3xl font-bold text-status-normal">{normalRows.length}</p>
+            <p className="text-xs sm:text-sm text-status-normal font-medium mt-0.5">Normal</p>
           </div>
         </div>
       </div>
