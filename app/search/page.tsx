@@ -9,7 +9,6 @@ import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 function transformApiToDrugCard(data: any) {
   const s = data.structured
-
   return {
     id: data.name,
     name: data.name.charAt(0).toUpperCase() + data.name.slice(1),
@@ -24,56 +23,67 @@ function transformApiToDrugCard(data: any) {
       overview: s?.simple_overview || data.simple_explanation || "Not available.",
     },
     dosage: {
-      standard: s?.dosage_steps || [
-        { label: "Dosage", value: data.dosage || "Consult your doctor." }
-      ],
+      standard: s?.dosage_steps || [{ label: "Dosage", value: data.dosage || "Consult your doctor." }],
       plainEnglish: s?.dosage_plain || data.dosage || "Follow your doctor's instructions.",
     },
-
     sideEffects: {
       common: s?.side_effects_common || ["See package insert"],
       serious: s?.side_effects_serious || ["Contact doctor if unusual symptoms occur"],
       note: s?.side_effects_note || "",
     },
-
-    warnings: s?.warnings || [
-      {
-        level: "moderate",
-        title: "Important Warnings",
-        body: data.warnings?.slice(0, 300) || "See package insert.",
-      }
-    ],
+    warnings: s?.warnings || [{
+      level: "moderate",
+      title: "Important Warnings",
+      body: data.warnings?.slice(0, 300) || "See package insert.",
+    }],
   }
 }
-export default function SearchPage() {
-  const [query, setQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [error, setError] = useState("");
 
+export default function SearchPage() {
+  const [query, setQuery] = useState("")
+  const [activeFilters, setActiveFilters] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [results, setResults] = useState<any[]>([])
+  const [hasSearched, setHasSearched] = useState(false)
+  const [error, setError] = useState("")
   const [searchHistory, setSearchHistory] = useState<string[]>([])
 
   useEffect(() => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem('mediq-search-history') || '[]')
-      setSearchHistory(Array.isArray(parsed) ? parsed : [])
-    } catch {
-      setSearchHistory([])
-    }
+    // Load from localStorage for non-logged in users
+    const local = JSON.parse(localStorage.getItem('mediq-search-history') || '[]')
+    setSearchHistory(local)
+
+    // Also fetch from Supabase if logged in
+    fetch('/api/history?type=medicine')
+      .then(r => r.json())
+      .then(data => {
+        if (data.history?.length > 0) {
+          const dbHistory = data.history.map((h: any) => h.query)
+          setSearchHistory(dbHistory)
+        }
+      })
+      .catch(() => {})
   }, [])
 
-  const saveToHistory = (drugName: string) => {
+  const saveToHistory = async (drugName: string) => {
+    // Save to localStorage always
+    const local = JSON.parse(localStorage.getItem('mediq-search-history') || '[]')
+    const updated = [drugName, ...local.filter((h: string) => h !== drugName)].slice(0, 5)
+    localStorage.setItem('mediq-search-history', JSON.stringify(updated))
+    setSearchHistory(updated)
+
+    // Save to Supabase if logged in
     try {
-      const parsed = JSON.parse(localStorage.getItem('mediq-search-history') || '[]')
-      const history = Array.isArray(parsed) ? parsed : []
-      const updated = [drugName, ...history.filter((h: string) => h !== drugName)].slice(0, 3)
-      localStorage.setItem('mediq-search-history', JSON.stringify(updated))
-      setSearchHistory(updated)
-    } catch {
-      // Ignore if localStorage fails
-    }
+      await fetch('/api/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          search_type: 'medicine',
+          query: drugName,
+          result_summary: ''
+        })
+      })
+    } catch (e) {}
   }
 
   const handleToggle = (filter: string) => {
@@ -90,7 +100,6 @@ export default function SearchPage() {
     if (!searchQuery.trim()) return
 
     if (directValue) setQuery(directValue)
-
     setLoading(true)
     setResults([])
     setHasSearched(true)
@@ -121,7 +130,7 @@ export default function SearchPage() {
         Look up any drug for plain-language dosage, side effects, and warnings.
       </p>
 
-      <div className="space-y-4 mb-10">
+      <div className="space-y-3 mb-10">
         <SearchBar
           value={query}
           onChange={setQuery}
@@ -131,17 +140,30 @@ export default function SearchPage() {
 
         {/* Search History */}
         {searchHistory.length > 0 && !hasSearched && (
-          <div className="flex items-center gap-2 flex-wrap mt-2">
-            <span className="text-xs text-muted font-medium">Recent Searches:</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted font-medium">Recent:</span>
             {searchHistory.map((term, i) => (
               <button
                 key={i}
                 onClick={() => handleSearch(undefined, term)}
-                className="text-xs px-3 py-1.5 bg-white border border-ash text-slate rounded-full hover:border-teal hover:text-teal transition-colors"
+                className="text-xs px-3 py-1.5 bg-white border border-ash text-slate rounded-full hover:border-teal hover:text-teal transition-colors flex items-center gap-1.5"
               >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 {term}
               </button>
             ))}
+            <button
+              onClick={() => {
+                localStorage.removeItem('mediq-search-history')
+                setSearchHistory([])
+                fetch('/api/history?type=medicine', { method: 'DELETE' }).catch(() => {})
+              }}
+              className="text-xs text-muted hover:text-severity-major transition-colors"
+            >
+              Clear
+            </button>
           </div>
         )}
       </div>
@@ -154,10 +176,7 @@ export default function SearchPage() {
 
       <div className="space-y-6 mb-12">
         {loading ? (
-          <>
-            <SkeletonCard />
-            <SkeletonCard />
-          </>
+          <><SkeletonCard /><SkeletonCard /></>
         ) : results.length > 0 ? (
           results.map((drug: any) => (
             <DrugCard key={drug.id} drug={drug} activeFilters={activeFilters} />
@@ -168,9 +187,7 @@ export default function SearchPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-lg font-medium text-charcoal mb-1">No results found</p>
-            <p className="text-sm text-muted">
-              Try a different name — e.g. "Dolo 650", "Combiflam", "ibuprofen"
-            </p>
+            <p className="text-sm text-muted">Try a different name — e.g. "Dolo 650", "Combiflam", "ibuprofen"</p>
           </div>
         ) : !hasSearched ? (
           <div className="text-center py-16 text-muted">
@@ -185,7 +202,6 @@ export default function SearchPage() {
       <div className="mt-10">
         <MedicalDisclaimer variant="prominent" />
       </div>
-
     </div>
   )
 }

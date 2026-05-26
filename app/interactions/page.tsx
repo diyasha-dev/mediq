@@ -55,8 +55,22 @@ export default function InteractionsPage() {
   notInDatabase: item.data_source === 'not_found',
   disclaimer: item.disclaimer,
 }));
-        setResults(transformed);
-        setChecked(true);
+       setResults(transformed)
+        setChecked(true)
+
+        // Save to history
+        try {
+          await fetch('/api/history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              search_type: 'interaction',
+              query: filledDrugs.join(' + '),
+              result_summary: `${transformed.length} interactions checked`
+            })
+          })
+        } catch (e) {}
+
       }
     } catch (e) {
       setError("Something went wrong. Please try again.");
