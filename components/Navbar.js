@@ -9,11 +9,9 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/search", label: "Medicine Search" },
   { href: "/interactions", label: "Interactions" },
-  { href: "/report", label: "Report" },
-  { href: "/vault", label: "Vault" },
 ];
 
-function UserButton({ user, handleSignOut, pathname }: { user: any, handleSignOut: () => void, pathname: string }) {
+function UserButton({ user, handleSignOut, pathname }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   if (user) {
@@ -98,7 +96,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient()
@@ -133,8 +131,6 @@ export default function Navbar() {
         }`}
     >
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
-
         {/* Logo */}
 
         <Link href="/" className="flex items-center shrink-1 -ml-6">
@@ -204,9 +200,28 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            
             {user ? (
-              <div className="mt-2 pt-2 border-t border-ash">
-                <div className="px-4 py-2 mb-1">
+              <div className="mt-2 pt-2 border-t border-ash flex flex-col gap-1">
+                <Link
+                  href="/vault"
+                  className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2.5 ${pathname === '/vault' ? 'text-teal bg-teal-50' : 'text-slate hover:text-charcoal hover:bg-stone-100'}`}
+                >
+                  <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  My Vault
+                </Link>
+                <Link
+                  href="/report"
+                  className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2.5 ${pathname === '/report' ? 'text-teal bg-teal-50' : 'text-slate hover:text-charcoal hover:bg-stone-100'}`}
+                >
+                  <svg className="w-4 h-4 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  My Reports
+                </Link>
+                <div className="px-4 py-2 mb-1 mt-2 border-t border-ash pt-3">
                   <p className="text-sm font-semibold text-charcoal truncate">
                     {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
                   </p>
