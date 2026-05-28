@@ -1,10 +1,14 @@
 <div align="center">
 
-# <img src="public/logo.png" alt="MedIQ Logo" width="40" valign="middle" /> MedIQ — Know Your Medicine Better
+# <img src="public/logo.png" alt="MedIQ Logo" width="55" valign="middle" /> MedIQ — Know Your Medicine Better
 
 **Full-stack medical information platform** — search medicines, check drug interactions, decode blood reports, and manage medications with AI-powered explanations in plain English.
 
-[**Live Demo**](https://mediq-two.vercel.app) &nbsp;|&nbsp; [**Source Code**](https://github.com/diyasha-dev/mediq)
+<br />
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-%230D9488.svg?style=for-the-badge&logo=vercel&logoColor=white)](https://mediq-two.vercel.app)
+&nbsp;&nbsp;&nbsp;&nbsp;
+[![Source Code](https://img.shields.io/badge/Source%20Code-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/diyasha-dev/mediq)
 
 <br />
 
@@ -31,7 +35,7 @@
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" width="40" /><br /><strong>Supabase</strong><br /><sub>PostgreSQL + Auth</sub>
 </td>
 <td align="center" width="140">
-<img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690b6.svg" width="40" /><br /><strong>Gemini AI</strong><br /><sub>2.5 Flash + Vision</sub>
+<img src="https://cdn.simpleicons.org/googlegemini/8E75B2" width="40" /><br /><strong>Gemini AI</strong><br /><sub>2.5 Flash + Vision</sub>
 </td>
 <td align="center" width="140">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg" width="40" /><br /><strong>Vercel</strong><br /><sub>CI/CD + Hosting</sub>
