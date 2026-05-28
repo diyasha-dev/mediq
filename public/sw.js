@@ -140,16 +140,37 @@ self.addEventListener('push', (event) => {
 // ─── Notification click — open /vault ─────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || '/vault';
+  
+  const data = event.notification.data || {};
+  const { drugName, timeStr, url } = data;
+  const targetUrl = url || '/vault';
+
+  // Handle Snooze action
+  if (event.action === 'snooze') {
+    if (drugName && timeStr) {
+      // Schedule snooze for 10 minutes
+      const delay = 10 * 60 * 1000;
+      const fire = () => showMedReminder(drugName, timeStr, true);
+      setTimeout(fire, delay);
+    }
+    return; // Don't open the app if they just snoozed
+  }
+
+  // Handle Taken action
+  if (event.action === 'taken') {
+    return; // Don't open the app, just dismiss
+  }
+
+  // Default click (open app)
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
       for (const client of clients) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(target);
+          client.navigate(targetUrl);
           return client.focus();
         }
       }
-      return self.clients.openWindow(target);
+      return self.clients.openWindow(targetUrl);
     })
   );
 });
@@ -164,21 +185,26 @@ function msUntilNextFire(timeStr) {
   return next - now;
 }
 
-function showMedReminder(drugName, timeStr) {
+function showMedReminder(drugName, timeStr, isSnooze = false) {
   const [hh, mm] = timeStr.split(':').map(Number);
   const ampm = hh >= 12 ? 'PM' : 'AM';
   const h = hh % 12 || 12;
   const label = `${h}:${String(mm).padStart(2, '0')} ${ampm}`;
 
-  self.registration.showNotification('💊 MedIQ Reminder', {
-    body: `Time to take ${drugName} (${label})`,
+  const title = isSnooze ? '⏰ Snoozed Reminder' : '💊 MedIQ Reminder';
+  const body = isSnooze 
+    ? `You asked to be reminded to take ${drugName}.` 
+    : `Time to take ${drugName} (${label})`;
+
+  self.registration.showNotification(title, {
+    body,
     icon: '/icon-192x192.png',
     badge: '/icon-192x192.png',
-    tag: `mediq-${drugName}-${timeStr}`,
+    tag: `mediq-${drugName}-${timeStr}-${Date.now()}`, // unique tag so snoozes don't overwrite if multiple
     renotify: true,
     silent: false,
     vibrate: [200, 100, 200, 100, 200],
-    data: { url: '/vault' },
+    data: { url: '/vault', drugName, timeStr },
     actions: [
       { action: 'taken', title: '✅ Taken' },
       { action: 'snooze', title: '⏰ Snooze 10 min' },
