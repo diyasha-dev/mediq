@@ -7,20 +7,30 @@ import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 import { useToast } from "@/components/Toast";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
-// Re-sync alarms with the service worker after vault changes
-async function rescheduleAlarms() {
+// Re-sync alarms with the service worker — pass meds directly to avoid re-fetch race condition
+async function rescheduleAlarms(meds?: any[]) {
   if (typeof window === 'undefined' || !("serviceWorker" in navigator)) return;
   try {
+    // Wait until SW is truly active (avoids postMessage being silently dropped)
     const reg = await navigator.serviceWorker.ready;
-    const res = await fetch('/api/vault', { cache: 'no-store' });
-    if (!res.ok) return;
-    const data = await res.json();
-    const meds = data.medications || [];
-    const alarms = meds
+
+    let medications = meds;
+    // If no meds passed in, fetch fresh from server
+    if (!medications) {
+      const res = await fetch('/api/vault', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      medications = data.medications || [];
+    }
+
+    const alarms = (medications || [])
       .filter((m: any) => m.reminder_time?.length > 0)
       .map((m: any) => ({ id: m.id, drugName: m.drug_name, times: m.reminder_time.filter(Boolean) }));
-    const sw = reg.active || reg.waiting || reg.installing;
-    if (sw) sw.postMessage({ type: 'SCHEDULE_ALARMS', alarms });
+
+    const sw = reg.active;
+    if (sw) {
+      sw.postMessage({ type: 'SCHEDULE_ALARMS', alarms });
+    }
   } catch (_) {}
 };
 
@@ -262,7 +272,13 @@ export default function VaultPage() {
         })
         const data = await res.json()
         if (data.error) addToast(data.error, { type: 'error' })
-        else { addToast(`${formData.drug_name} updated!`); fetchMeds(); rescheduleAlarms(); }
+        else {
+          addToast(`${formData.drug_name} updated!`)
+          // Build updated meds list and pass directly so SW gets fresh data immediately
+          const updatedMeds = meds.map((m: any) => m.id === formData.id ? { ...m, ...formData } : m)
+          setMeds(updatedMeds)
+          rescheduleAlarms(updatedMeds)
+        }
       } else {
         const res = await fetch('/api/vault', {
           method: 'POST',
@@ -277,7 +293,12 @@ export default function VaultPage() {
         } else {
           addToast(`${formData.drug_name} added to your vault`)
         }
-        fetchMeds(); rescheduleAlarms()
+        // Refetch so we have the new med's DB id, then pass to SW
+        const res2 = await fetch('/api/vault', { cache: 'no-store' })
+        const data2 = await res2.json()
+        const freshMeds = data2.medications || []
+        setMeds(freshMeds)
+        rescheduleAlarms(freshMeds)
       }
     } catch (e) {
       addToast('Something went wrong', { type: 'error' })
@@ -322,16 +343,26 @@ export default function VaultPage() {
 
   const toggleReminder = async (med: any) => {
     const currentlyEnabled = med.reminder_time?.length > 0
-    const newReminders = currentlyEnabled ? [] : ['08:00']
-    setMeds(prev => prev.map(m => m.id === med.id ? { ...m, reminder_time: newReminders } : m))
+    // When turning back ON: restore the last known time from the med object,
+    // or use the previously stored time, fallback to 08:00
+    const lastTime = med._lastReminderTime || '08:00'
+    const newReminders = currentlyEnabled ? [] : [lastTime]
+
+    // Optimistically update UI
+    const updatedMed = currentlyEnabled
+      ? { ...med, reminder_time: [], _lastReminderTime: med.reminder_time?.[0] || lastTime }
+      : { ...med, reminder_time: newReminders }
+    const updatedMeds = meds.map((m: any) => m.id === med.id ? updatedMed : m)
+    setMeds(updatedMeds)
+
     try {
       await fetch(`/api/vault?id=${med.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reminder_time: newReminders })
       })
-      addToast(currentlyEnabled ? 'Reminder turned off' : 'Reminder set for 8:00 AM')
-      rescheduleAlarms()
+      addToast(currentlyEnabled ? 'Reminder turned off' : `Reminder set for ${newReminders.map(formatTime).join(', ')}`)
+      rescheduleAlarms(updatedMeds)
     } catch (e) { fetchMeds() }
   }
 
