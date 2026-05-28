@@ -101,7 +101,7 @@ useEffect(() => {
           id: data.user.id,
           full_name: name
         });
-        setSuccess("Account created! Please check your email to confirm your account before signing in.");
+        setSuccess("Account created successfully!");
         setEmail("");
         setPassword("");
         setName("");
@@ -114,9 +114,7 @@ useEffect(() => {
       });
 
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          setError("Please confirm your email first. Check your inbox for the confirmation link.");
-        } else if (error.message.includes('Invalid login')) {
+        if (error.message.includes('Invalid login')) {
           setError("Incorrect email or password. Please try again.");
         } else {
           setError(error.message);

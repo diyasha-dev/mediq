@@ -21,7 +21,7 @@ async function requestNotificationPermission(): Promise<boolean> {
 
 async function scheduleAlarms(reg: ServiceWorkerRegistration) {
   try {
-    const res = await fetch("/api/vault");
+    const res = await fetch("/api/vault", { cache: "no-store" });
     if (!res.ok) return;
     const data = await res.json();
     const meds: VaultMed[] = data.medications || [];

@@ -12,7 +12,7 @@ async function rescheduleAlarms() {
   if (typeof window === 'undefined' || !("serviceWorker" in navigator)) return;
   try {
     const reg = await navigator.serviceWorker.ready;
-    const res = await fetch('/api/vault');
+    const res = await fetch('/api/vault', { cache: 'no-store' });
     if (!res.ok) return;
     const data = await res.json();
     const meds = data.medications || [];
@@ -220,7 +220,7 @@ export default function VaultPage() {
 
   const fetchMeds = async () => {
     try {
-      const res = await fetch('/api/vault')
+      const res = await fetch('/api/vault', { cache: 'no-store' })
       const data = await res.json()
       if (data.error === 'Not logged in') {
         setNotLoggedIn(true)
@@ -331,6 +331,7 @@ export default function VaultPage() {
         body: JSON.stringify({ reminder_time: newReminders })
       })
       addToast(currentlyEnabled ? 'Reminder turned off' : 'Reminder set for 8:00 AM')
+      rescheduleAlarms()
     } catch (e) { fetchMeds() }
   }
 

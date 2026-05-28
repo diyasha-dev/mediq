@@ -48,7 +48,7 @@ export async function POST(request) {
     }
 
     return Response.json({
-      message: 'Account created! Please check your email to confirm your account.',
+      message: 'Account created successfully!',
       user: data.user
     })
   }
