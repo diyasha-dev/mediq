@@ -1,14 +1,10 @@
 <div align="center">
 
-<img src="public/logo.png" alt="MedIQ Logo" width="80" />
-
-# MedIQ — Know Your Medicine Better
+# <img src="public/logo.png" alt="MedIQ Logo" width="40" valign="middle" /> MedIQ — Know Your Medicine Better
 
 **Full-stack medical information platform** — search medicines, check drug interactions, decode blood reports, and manage medications with AI-powered explanations in plain English.
 
-[![Live Demo](https://img.shields.io/badge/🔗_Live_Demo-mediq--two.vercel.app-0D9488?style=for-the-badge)](https://mediq-two.vercel.app)
-&nbsp;
-[![GitHub](https://img.shields.io/badge/GitHub-Source_Code-181717?style=for-the-badge&logo=github)](https://github.com/diyasha-dev/mediq)
+[**Live Demo**](https://mediq-two.vercel.app) &nbsp;|&nbsp; [**Source Code**](https://github.com/diyasha-dev/mediq)
 
 <br />
 
