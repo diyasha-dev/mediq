@@ -8,10 +8,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-1.5 mb-3">
-              <div className="w-7 h-7 rounded-md bg-teal flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v12M2 8h12" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img src="/logo.png" alt="MedIQ Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-lg font-heading text-charcoal tracking-tight">
                 Med<span className="text-teal">IQ</span>
@@ -37,9 +35,9 @@ export default function Footer() {
           <div>
             <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-3">Resources</p>
             <ul className="space-y-2">
-              <li><a href="#" className="text-sm text-slate hover:text-teal transition-colors">How It Works</a></li>
-              <li><a href="#" className="text-sm text-slate hover:text-teal transition-colors">Data Sources</a></li>
-              <li><a href="#" className="text-sm text-slate hover:text-teal transition-colors">FAQ</a></li>
+              <li><a href="https://github.com/diyasha-dev/mediq#readme" target="_blank" rel="noopener noreferrer" className="text-sm text-slate hover:text-teal transition-colors">How It Works</a></li>
+              <li><a href="https://open.fda.gov/apis/drug/" target="_blank" rel="noopener noreferrer" className="text-sm text-slate hover:text-teal transition-colors">Data Sources</a></li>
+              <li><a href="https://github.com/diyasha-dev/mediq#readme" target="_blank" rel="noopener noreferrer" className="text-sm text-slate hover:text-teal transition-colors">FAQ</a></li>
             </ul>
           </div>
 
@@ -47,9 +45,9 @@ export default function Footer() {
           <div>
             <p className="text-xs font-semibold text-charcoal uppercase tracking-wider mb-3">Legal</p>
             <ul className="space-y-2">
-              <li><a href="#" className="text-sm text-slate hover:text-teal transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-sm text-slate hover:text-teal transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-sm text-slate hover:text-teal transition-colors">Medical Disclaimer</a></li>
+              <li><a href="https://github.com/diyasha-dev/mediq" target="_blank" rel="noopener noreferrer" className="text-sm text-slate hover:text-teal transition-colors">Privacy Policy</a></li>
+              <li><a href="https://github.com/diyasha-dev/mediq" target="_blank" rel="noopener noreferrer" className="text-sm text-slate hover:text-teal transition-colors">Terms of Service</a></li>
+              <li><a href="https://github.com/diyasha-dev/mediq#%E2%9A%A0%EF%B8%8F-disclaimer" target="_blank" rel="noopener noreferrer" className="text-sm text-slate hover:text-teal transition-colors">Medical Disclaimer</a></li>
             </ul>
           </div>
         </div>
