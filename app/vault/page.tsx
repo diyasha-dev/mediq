@@ -7,6 +7,23 @@ import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 import { useToast } from "@/components/Toast";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 
+// Re-sync alarms with the service worker after vault changes
+async function rescheduleAlarms() {
+  if (typeof window === 'undefined' || !("serviceWorker" in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const res = await fetch('/api/vault');
+    if (!res.ok) return;
+    const data = await res.json();
+    const meds = data.medications || [];
+    const alarms = meds
+      .filter((m: any) => m.reminder_time?.length > 0)
+      .map((m: any) => ({ id: m.id, drugName: m.drug_name, times: m.reminder_time.filter(Boolean) }));
+    const sw = reg.active || reg.waiting || reg.installing;
+    if (sw) sw.postMessage({ type: 'SCHEDULE_ALARMS', alarms });
+  } catch (_) {}
+};
+
 function getDrugClass(name: string): string {
   const n = name.toLowerCase()
   if (n.includes('ibuprofen') || n.includes('combiflam') || n.includes('brufen') || n.includes('diclofenac') || n.includes('naproxen')) return 'NSAID / Pain Relief'
@@ -151,7 +168,7 @@ function MedicineModal({ onClose, onSave, editMed }: {
               ))}
             </div>
             {form.reminderTimes.some((t: string) => t) && (
-              <p className="text-xs text-muted mt-2">ℹ️ Push notifications coming soon. Times are saved.</p>
+              <p className="text-xs text-teal font-medium mt-2">🔔 You'll get a push notification at this time daily.</p>
             )}
           </div>
 
@@ -245,7 +262,7 @@ export default function VaultPage() {
         })
         const data = await res.json()
         if (data.error) addToast(data.error, { type: 'error' })
-        else { addToast(`${formData.drug_name} updated!`); fetchMeds() }
+        else { addToast(`${formData.drug_name} updated!`); fetchMeds(); rescheduleAlarms(); }
       } else {
         const res = await fetch('/api/vault', {
           method: 'POST',
@@ -260,7 +277,7 @@ export default function VaultPage() {
         } else {
           addToast(`${formData.drug_name} added to your vault`)
         }
-        fetchMeds()
+        fetchMeds(); rescheduleAlarms()
       }
     } catch (e) {
       addToast('Something went wrong', { type: 'error' })

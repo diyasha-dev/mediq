@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ToastProvider } from "@/components/Toast";
 import PWARegister from "@/components/PWARegister";
+import PWAInstallBanner from "@/components/PWAInstallBanner";
 import "./globals.css";
 
 const inter = Inter({
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col">
         <PWARegister />
+        <PWAInstallBanner />
         <ToastProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
